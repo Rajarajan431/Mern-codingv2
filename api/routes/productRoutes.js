@@ -4,10 +4,10 @@ import { getAllProducts, getBarChartData, getCombinedData,
 
 const router = express.Router();
 
-router.get('/getAll', getAllProducts);
-router.get('/getStatistics/:year/:month', getStatistics);
+router.get('/getAll/:month', getAllProducts);
+router.get('/getStatistics/:month', getStatistics);
 router.get('/getBarChart/:month', getBarChartData);
 router.get('/getPieChart/:month', getPieChartData);
-router.get('/combinedData/:month', getCombinedData);
+router.get('/getCombinedData/:month', getCombinedData);
 
 export default router;
