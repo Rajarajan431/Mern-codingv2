@@ -2,6 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
+import productRouter from './routes/productRoutes.js';
+
 dotenv.config();
 
 const app = express();
@@ -19,7 +21,7 @@ mongoose.connect(process.env.MONGODB_URL, {
   console.error('Error connecting to MongoDB:', err);
 });
 
-app.use('')
+app.use('/api/listings', productRouter);
 
 app.listen(3000, () => {
   console.log('Server is running on port 3000!!');
