@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-//components
+// Components
 import TransactionTable from './components/TransactionTable';
 import TransactionStatistics from './components/TransactionStatistics';
 import TransactionBarChart from './components/TransactionBarChart';
@@ -8,25 +8,24 @@ import TransactionPieChart from './components/TransactionPieChart';
 
 function App() {
   const [month, setMonth] = useState('March');
-  const [searchText, setSearchText] = useState('');
-  const [transactions, setTransactions] = useState([]);
-  const [statistics, setStatistics] = useState({});
-  const [barChartData, setBarChartData] = useState([]);
-  const [pieChartData, setPieChartData] = useState([]);
+  const [searchText, setSearchText] = useState('r');
+  const [combinedData, setCombinedData] = useState({
+    products: [],
+    statistics: {},
+    barChartData: [],
+    pieChartData: [],
+  });
 
   useEffect(() => {
-    fetchTransactions();
-    
-  }, [month]);
+    fetchCombinedData();
+  }, [month, searchText]);
 
-  const fetchTransactions = async () => {
-    const response = await fetch(`http://localhost:3000/api/listings/getCombinedData/${month}`);
+  const fetchCombinedData = async () => {
+    const search = searchText.trim() === '' ? 'all' : searchText;
+    const response = await fetch(`http://localhost:3000/api/listings/getCombinedData/${month}/${search}`);
     const data = await response.json();
-    
-    setTransactions(data);
-    setStatistics(data);
-    setBarChartData(data);
-    setPieChartData(data);
+
+    setCombinedData(data);
   };
 
   const handleMonthChange = (event) => {
@@ -39,7 +38,6 @@ function App() {
 
   return (
     <div className="container mx-auto p-4">
-
       <h1 className='font-bold text-3xl mb-10 flex justify-center underline'>
         Transaction Board
       </h1>
@@ -64,37 +62,31 @@ function App() {
           value={searchText} 
           onChange={handleSearch} 
           placeholder="Search transactions" 
-          className="bg-white border border-gray-400 hover:border-gray-500 
-            px-4 py-2 pr-8 rounded" />
+          className="bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded" 
+        />
       </div>
 
-
-      
-     <div className="grid grid-cols-1 md:grid-cols-2 
-        lg:grid-cols-3 xl:grid-cols-3 gap-4 items-center">    
-
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 items-center">
         <div className="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-3">
-          <TransactionTable transactions={transactions} />
+          <TransactionTable transactions={combinedData.products} />
         </div>
 
         <div className="col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-1 w-full h-full mt-10">
-          <TransactionStatistics statistics={statistics} />
+          <TransactionStatistics statistics={combinedData.statistics} />
         </div>
 
         <div className="col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-1 w-full h-full">
-          <div className="h-full w-full" style={{height: "100%", width: "100%"}}>
-            <TransactionBarChart barChart={barChartData} />
+          <div className="h-full w-full" style={{ height: "100%", width: "100%" }}>
+            <TransactionBarChart barChart={combinedData.barChartData} />
           </div>
         </div>
 
         <div className="col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-1 w-full h-full">
-          <div className="h-full w-full" style={{height: "100%", width: "100%"}}>
-            <TransactionPieChart pieChart={pieChartData} />
+          <div className="h-full w-full" style={{ height: "100%", width: "100%" }}>
+            <TransactionPieChart pieChart={combinedData.pieChartData} />
           </div>
         </div>
-    
       </div>
-      
     </div>
   );
 }

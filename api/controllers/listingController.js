@@ -2,21 +2,35 @@ import Product from "../models/products.model.js";
 import { getMonthNumberFromName } from '../utils/getMonth.js';
 
 //GET AllProducts
-export const getAllProducts = async (month) => {
+
+export const getAllProducts = async (month, searchText) => {
   try {
-    const monthNumber = getMonthNumberFromName(month);
+    const monthNumber = month ? getMonthNumberFromName(month) : null;
+
+    let searchQuery = {};
+    if (searchText) {
+      searchQuery = {
+        $or: [
+          { title: { $regex: searchText, $options: 'i' } },
+          { description: { $regex: searchText, $options: 'i' } },
+          { price: { $regex: searchText, $options: 'i' } },
+        ],
+      };
+    }
+
+    let monthQuery = {};
+    if (monthNumber) {
+      monthQuery = {
+        $expr: {
+          $and: [
+            { $eq: [{ $month: '$dateOfSale' }, monthNumber] },
+          ],
+        },
+      };
+    }
 
     const products = await Product.aggregate([
-      {
-        $match: {
-          $expr: {
-            $and: [
-              { $gte: [{ $month: "$dateOfSale" }, monthNumber] },
-              { $lte: [{ $month: "$dateOfSale" }, monthNumber] },
-            ],
-          },
-        },
-      },
+      { $match: { ...searchQuery, ...monthQuery } },
     ]);
 
     return products;
@@ -65,6 +79,19 @@ export const getBarChartData = async (month) => {
   try {
     const monthNumber = getMonthNumberFromName(month);
 
+    const priceRanges = [
+      { range: '0-100', min: 0, max: 100 },
+      { range: '101-200', min: 101, max: 200 },
+      { range: '201-300', min: 201, max: 300 },
+      { range: '301-400', min: 301, max: 400 },
+      { range: '401-500', min: 401, max: 500 },
+      { range: '501-600', min: 501, max: 600 },
+      { range: '601-700', min: 601, max: 700 },
+      { range: '701-800', min: 701, max: 800 },
+      { range: '801-900', min: 801, max: 900 },
+      { range: '901-above', min: 901, max: Number.MAX_SAFE_INTEGER },
+    ];
+
     const products = await Product.aggregate([
       {
         $match: {
@@ -72,9 +99,35 @@ export const getBarChartData = async (month) => {
         }
       },
       {
+        $project: {
+          price: 1,
+          priceRange: {
+            $switch: {
+              branches: priceRanges.map(range => ({
+                case: {
+                  $and: [
+                    { $gte: ["$price", range.min] },
+                    { $lt: ["$price", range.max] }
+                  ]
+                },
+                then: range.range
+              })),
+              default: "Other"
+            }
+          }
+        }
+      },
+      {
         $group: {
-          _id: "$category",
+          _id: "$priceRange",
           count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          priceRange: "$_id",
+          count: 1
         }
       }
     ]);
@@ -124,8 +177,9 @@ export const getBarChartData = async (month) => {
  export const getCombinedData = async (req, res) => {
   try {
     const month = req.params.month;
-
-    const products = await getAllProducts(month);
+    const searchText = req.params.searchText || '';
+    
+    const products = await getAllProducts(month, searchText);
     const statistics = await getStatistics(month);
     const barChartData = await getBarChartData(month);
     const pieChartData = await getPieChartData(month);

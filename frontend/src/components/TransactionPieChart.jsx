@@ -4,7 +4,7 @@ import { PieChart, Pie, Tooltip, Cell } from 'recharts';
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7f0e', '#2ca02c'];
 
 const TransactionPieChart = ({ pieChart }) => {
-  const data = pieChart?.pieChartData;
+  const data = pieChart
 
   // Check if data exists and has elements
   if (!data || data.length === 0) {

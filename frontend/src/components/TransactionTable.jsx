@@ -10,7 +10,7 @@ const TransactionTable = ({ transactions }) => {
 
   useEffect(() => {
     const monthsArray = [];
-    transactions?.products?.forEach((product) => {
+    transactions?.forEach((product) => {
       const date = new Date(product.dateOfSale);
       if (!isNaN(date.getTime())) {
         const month = date.toLocaleString('default', { month: 'long' });
@@ -24,9 +24,9 @@ const TransactionTable = ({ transactions }) => {
 
   useEffect(() => {
     if (selectedMonth === '') {
-      setFilteredTransactions(transactions?.products);
+      setFilteredTransactions(transactions);
     } else {
-      const filteredTransactions = transactions?.products?.filter((product) => {
+      const filteredTransactions = transactions?.filter((product) => {
         const date = new Date(product.dateOfSale);
         if (!isNaN(date.getTime())) {
           const month = date.toLocaleString('default', { month: 'long' });
@@ -34,13 +34,11 @@ const TransactionTable = ({ transactions }) => {
         }
         return false;
       });
-      console.log('Filtered transactions:', filteredTransactions);
       setFilteredTransactions(filteredTransactions);
     }
   }, [selectedMonth, transactions]);
 
   const handleMonthChange = (month) => {
-    console.log('Selected month:', month);
     setSelectedMonth(month);
     setCurrentPage(0); // Reset to first page when month changes
   };
