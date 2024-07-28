@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-
 import { TableContainer, Table, TableHead, TableRow, TableCell, Button, Paper, TableBody } from '@mui/material';
 
 const TransactionTable = ({ transactions }) => {
@@ -10,7 +9,7 @@ const TransactionTable = ({ transactions }) => {
   useEffect(() => {
     const monthsArray = [];
     transactions?.products?.forEach((product) => {
-      const date = new Date(product.createdAt);
+      const date = new Date(product.dateOfSale);
       if (!isNaN(date.getTime())) {
         const month = date.toLocaleString('default', { month: 'long' });
         if (!monthsArray.includes(month)) {
@@ -26,7 +25,7 @@ const TransactionTable = ({ transactions }) => {
       setFilteredTransactions(transactions?.products);
     } else {
       const filteredTransactions = transactions?.products?.filter((product) => {
-        const date = new Date(product.createdAt);
+        const date = new Date(product.dateOfSale);
         if (!isNaN(date.getTime())) {
           const month = date.toLocaleString('default', { month: 'long' });
           return month === selectedMonth;
@@ -52,7 +51,6 @@ const TransactionTable = ({ transactions }) => {
           </Button>
         ))}
         <Button onClick={() => handleMonthChange('')}>All</Button>
-      
       </div>
       <TableContainer component={Paper} style={{ maxHeight: '300px', overflowY: 'auto' }}>
         <Table>
@@ -63,11 +61,12 @@ const TransactionTable = ({ transactions }) => {
               <TableCell>Price</TableCell>
               <TableCell>Category</TableCell>
               <TableCell>Sold</TableCell>
+              <TableCell>Image URLs</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredTransactions?.map((item) => (
-              <TableRow key={item.id}>
+              <TableRow key={item._id}>
                 <TableCell style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {item?.title}
                 </TableCell>
@@ -77,6 +76,13 @@ const TransactionTable = ({ transactions }) => {
                 <TableCell>{item?.price}</TableCell>
                 <TableCell>{item?.category}</TableCell>
                 <TableCell>{item?.sold.toString()}</TableCell>
+                <TableCell>
+                  {item?.imageUrls?.length > 0 ? (
+                    item.imageUrls.join(', ')
+                  ) : (
+                    'No Image'
+                  )}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
