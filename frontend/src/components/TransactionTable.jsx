@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { TableContainer, Table, TableHead, TableRow, TableCell, Button, Paper, TableBody } from '@mui/material';
+import { TableContainer, Table, TableHead, TableRow, TableCell, Button, Paper, TableBody, TableFooter, TablePagination } from '@mui/material';
 
 const TransactionTable = ({ transactions }) => {
   const [months, setMonths] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState('');
   const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const rowsPerPage = 4;
 
   useEffect(() => {
     const monthsArray = [];
@@ -40,6 +42,11 @@ const TransactionTable = ({ transactions }) => {
   const handleMonthChange = (month) => {
     console.log('Selected month:', month);
     setSelectedMonth(month);
+    setCurrentPage(0); // Reset to first page when month changes
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setCurrentPage(newPage);
   };
 
   return (
@@ -65,7 +72,7 @@ const TransactionTable = ({ transactions }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredTransactions?.map((item) => (
+            {filteredTransactions?.slice(currentPage * rowsPerPage, currentPage * rowsPerPage + rowsPerPage).map((item) => (
               <TableRow key={item._id}>
                 <TableCell style={{ maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {item?.title}
@@ -86,6 +93,18 @@ const TransactionTable = ({ transactions }) => {
               </TableRow>
             ))}
           </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[4]}
+                colSpan={6}
+                count={filteredTransactions?.length || 0}
+                rowsPerPage={rowsPerPage}
+                page={currentPage}
+                onPageChange={handleChangePage}
+              />
+            </TableRow>
+          </TableFooter>
         </Table>
       </TableContainer>
     </div>
