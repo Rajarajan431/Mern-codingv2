@@ -40,7 +40,9 @@ function App() {
   return (
     <div className="container mx-auto p-4">
 
-      <h1 className='font-bold text-3xl mb-10 flex justify-center'>Transaction Board</h1>
+      <h1 className='font-bold text-3xl mb-10 flex justify-center underline'>
+        Transaction Board
+      </h1>
 
       <div className="flex justify-between mb-4">
         <select value={month} onChange={handleMonthChange} className="bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded">
