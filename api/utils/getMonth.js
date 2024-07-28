@@ -1,4 +1,4 @@
-// utils.js
+
 export function getMonthNumberFromName(monthName) {
     const monthNames = [
       "January",
